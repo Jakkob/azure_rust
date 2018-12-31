@@ -19,14 +19,14 @@ fn get_azure_cli_token() -> AzureToken {
         .expect("looks like the CLI command didn't work..");
 
     let std_out = String::from_utf8_lossy(&output.stdout);
-    return serde_json::from_str(&std_out).unwrap();
+    serde_json::from_str(&std_out).unwrap()
 }
 
 impl CliTokenProvider {
     pub fn new() -> CliTokenProvider {
-        return CliTokenProvider {
+        CliTokenProvider {
             cached_token: get_azure_cli_token(),
-        };
+        }
     }
 }
 
@@ -37,6 +37,6 @@ impl TokenProvider for CliTokenProvider {
         }
 
         self.cached_token = get_azure_cli_token();
-        return &self.cached_token;
+        &self.cached_token
     }
 }

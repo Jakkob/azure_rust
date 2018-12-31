@@ -7,21 +7,16 @@ use std::io;
 
 pub struct ServicePrincipalTokenProvider {
     cached_token: AzureToken,
-    client: reqwest::Client,
 }
 
-#[allow(non_upper_case_globals)]
 mod env_var_keys {
-    pub const tenant_id: &str = "TENANT_ID";
-    pub const client_id: &str = "CLIENT_ID";
-    pub const client_secret: &str = "CLIENT_SECRET";
+    pub const TENANT_ID: &str = "TENANT_ID";
+    pub const CLIENT_ID: &str = "CLIENT_ID";
+    pub const CLIENT_SECRET: &str = "CLIENT_SECRET";
 }
 
 pub fn has_env_vars() -> bool {
-    match ServicePrincipalEnvVars::get_env_vars() {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    ServicePrincipalEnvVars::get_env_vars().is_ok()
 }
 
 struct ServicePrincipalEnvVars {
@@ -32,11 +27,11 @@ struct ServicePrincipalEnvVars {
 
 impl ServicePrincipalEnvVars {
     pub fn get_env_vars() -> Result<ServicePrincipalEnvVars, env::VarError> {
-        return Ok(ServicePrincipalEnvVars {
-            tenant_id: env::var(env_var_keys::tenant_id)?,
-            client_id: env::var(env_var_keys::client_id)?,
-            client_secret: env::var(env_var_keys::client_secret)?,
-        });
+        Ok(ServicePrincipalEnvVars {
+            tenant_id: env::var(env_var_keys::TENANT_ID)?,
+            client_id: env::var(env_var_keys::CLIENT_ID)?,
+            client_secret: env::var(env_var_keys::CLIENT_SECRET)?,
+        })
     }
 }
 
@@ -64,14 +59,13 @@ fn get_service_principal_access_token() -> Result<AzureToken, io::Error> {
         .json::<AzureToken>()
         .unwrap();
 
-    return Ok(response);
+    Ok(response)
 }
 
 impl ServicePrincipalTokenProvider {
-    pub fn new(_client: reqwest::Client) -> ServicePrincipalTokenProvider {
+    pub fn new() -> ServicePrincipalTokenProvider {
         ServicePrincipalTokenProvider {
             cached_token: get_service_principal_access_token().unwrap(),
-            client: _client,
         }
     }
 }
@@ -83,6 +77,6 @@ impl TokenProvider for ServicePrincipalTokenProvider {
         }
 
         self.cached_token = get_service_principal_access_token().unwrap();
-        return &self.cached_token;
+        &self.cached_token
     }
 }

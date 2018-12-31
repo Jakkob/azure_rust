@@ -19,7 +19,7 @@ pub struct TokenResolver {
 
 impl TokenResolver {
     pub fn new() -> Self {
-        return if has_env_vars() {
+        if has_env_vars() {
             Self {
                 provider: Box::new(ServicePrincipalTokenProvider::new()),
             }
@@ -27,10 +27,10 @@ impl TokenResolver {
             Self {
                 provider: Box::new(CliTokenProvider::new()),
             }
-        };
+        }
     }
 
     pub fn resolve_token(&mut self) -> &AzureToken {
-        return &mut self.provider.get_token();
+        &mut self.provider.get_token()
     }
 }
